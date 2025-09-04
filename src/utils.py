@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import os
 
-total_steps = 2000000
+total_steps = 5000000
 base_reward = 10.0
 decay_rate = 0.6
 reward_period = 10 
