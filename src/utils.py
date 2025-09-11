@@ -298,6 +298,7 @@ def path_opt(state: int, t: int, len_future: int):
 def preward_opt(ireward,gamma):
     gammas = gamma ** np.arange(0,len(ireward))  # [γ^0, γ^1, γ^2, …] 
     weights = gammas / gammas.sum() # normalize to sum=1
+    # weights = gammas
     return np.dot(weights, ireward)
     # return np.sum(ireward)
 
@@ -315,6 +316,7 @@ def compute_normalized_future_rewards(rewards,T,gamma):
         # normalized weights for the next L rewards
         raw     = gammas[:L]            # [γ^0, γ^1, …, γ^{L-1}]
         weights = raw / raw.sum()
+        # weights = raw
 
         future_rewards = rewards[t+1 : t+1+L]
         # dot-product returns the weighted average
