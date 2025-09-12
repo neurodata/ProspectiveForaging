@@ -104,8 +104,8 @@ def make_weighted_target(rewards, gamma,T):
         # raw weights ∝ [γ^0, γ^1, ..., γ^{L-1}]
         # print(L,t+1+L)
         raw = gammas[:L]          # length L
-        # weights = raw / raw.sum() # normalize to sum=1
-        weights =raw
+        weights = raw / raw.sum() # normalize to sum=1
+        # weights =raw
 
         future_rewards = rewards[t+1 : t+1+L]
         # print(weights.shape, future_rewards.shape)
@@ -194,8 +194,8 @@ def best_next_state(X_state, t, model, pe_type):
                     cand2_encode = position_encoder(np.array([cand2]), type="onehot")
                 if pe_type == 'pe':
                     cand2_encode = position_encoder(np.array([cand2]), type="pe")
-                feat2 = np.hstack([and2_encode, time_emb2.reshape(1,-1)])
-                feat2 = np.hstack([cand2_onehot.reshape(1,-1), time_emb2.reshape(1,-1)])
+                feat2 = np.hstack([cand2_encode, time_emb2.reshape(1,-1)])
+                feat2 = np.hstack([cand2_encode.reshape(1,-1), time_emb2.reshape(1,-1)])
                 preds2.append(model.predict(feat2)[0])
             # best future reward for this branch
             best_scores= np.round(np.max(preds2),10)
