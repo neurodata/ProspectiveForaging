@@ -14,7 +14,6 @@ for period_start in range(0, total_steps, reward_period):
     rewards_in_period.extend(base_reward * (decay_rate ** (steps_in_period - period_start)))
 
 
-
 def time_embedding_np(t, tdim=50):
     freqs = (2 * np.pi) / np.arange(2, tdim + 1, 2)  # shape: (tdim//2,)
     angles = np.outer(t, freqs)
@@ -25,7 +24,7 @@ def time_embedding_np(t, tdim=50):
         return emb[0]  # return (tdim,) for scalar input
     return emb  # (len(t), tdim)
 
-def reward_simulate(state, t,rewards_in_period):
+def reward_simulate(state, t, rewards_in_period):
     phase = t % 20
     if state in [0, 2, 3, 4,6]:
         val = 0.0
@@ -302,7 +301,7 @@ def preward_opt(ireward,gamma):
     # return np.sum(ireward)
 
 
-def compute_normalized_future_rewards(rewards,T,gamma):
+def compute_normalized_future_rewards(rewards, T, gamma):
     Y = np.zeros(T, dtype=float)
     gammas  = gamma ** np.arange(T)  # [γ^0, γ^1, …, γ^{T-1}]
 
