@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
+from .utils import time_embedding_np
 
 class TabularQLearner:
     def __init__(self, gamma=0.9, num_states=7, num_actions=3, include_time=True, tsize=20):
@@ -60,13 +61,14 @@ class FQILearner:
         s_enc = [s]
         a_enc = [a]
         if self.include_time:
-            t_enc = [(t % i) for i in range(5, 30+1, 5)]
+            # t_enc = [(t % i) for i in range(5, 30+1, 5)]
             # t_enc = [(t % 20)]
+            t_enc = time_embedding_np(t)
             return np.concatenate([s_enc, a_enc, t_enc])
         else:
             return np.concatenate([s_enc, a_enc])
 
-    def fit(self, experiences, num_iterations=100):
+    def fit(self, experiences, num_iterations=100, n_trees=1000):
         ## -- Simple version --
         # for _ in range(num_iterations):
         #     inputs, targets = [], []
@@ -117,7 +119,7 @@ class FQILearner:
                 y = r + self.gamma * q_next_max
 
             # Fit the regressor
-            self.Q = RandomForestRegressor(n_estimators=100, n_jobs=-1)
+            self.Q = RandomForestRegressor(n_estimators=n_trees, n_jobs=-1)
             self.Q.fit(X, y)
 
     def greedy_policy(self, state, time):   
