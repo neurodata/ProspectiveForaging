@@ -31,11 +31,12 @@ def next_state(current_state, action):
         next_state = 6
     return next_state
 
-def fit_and_evaluate(t, learner, experiences, fit_iterations=100, gamma=0.5, eval_period=100):
+def fit_and_evaluate(t, learner, experiences, fit_iterations=20, gamma=0.5, eval_period=100):
     # fit the learner
     learner.reset()
-    learner.fit(experiences[:t], num_iterations=fit_iterations, n_trees=1000)
-    
+    if t > 0:
+        learner.fit(experiences[:t], num_iterations=fit_iterations, n_trees=1000)
+
     # get the future states using the learned policy
     current_state, _, _, _ = experiences[t]
     pred_states = [current_state]
@@ -64,10 +65,12 @@ def run_replicate(t_list, experiences, include_time=False):
 data = np.load("results/RL/experiences_list.npz")
 experiences_list = data["experiences_list"]
 
-t_list = [128, 512, 1024, 2048, 4096, 10000, 20000]
+# t_list = [128, 512, 1024, 2048, 4096, 10000, 20000]
+t_list = [0]
+
 
 pregret_list_notime = Parallel(n_jobs=5)(delayed(run_replicate)(t_list, experiences, include_time=False) for experiences in experiences_list)
 
 pregret_list_time = Parallel(n_jobs=5)(delayed(run_replicate)(t_list, experiences, include_time=True) for experiences in experiences_list)
 
-np.savez("results/RL/pregret_list_fqi.npz", pregret_list_notime=pregret_list_notime, pregret_list_time=pregret_list_time)
+np.savez("results/RL/pregret_list_fqi_0.npz", pregret_list_notime=pregret_list_notime, pregret_list_time=pregret_list_time)
