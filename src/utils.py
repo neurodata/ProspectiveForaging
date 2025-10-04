@@ -83,7 +83,7 @@ def simulate_data_raw(rewards_in_period, session_duration = 10000,tdim=50, n_ses
         np.array(times),
     )
 
-def make_weighted_target(rewards, gamma,T):
+def make_weighted_target(rewards, gamma,T,normalization):
     """
     Given a 1D array `rewards` of length T (indexed 0..T-1),
     returns an array Y of length T such that for each t:
@@ -104,8 +104,11 @@ def make_weighted_target(rewards, gamma,T):
         # raw weights ∝ [γ^0, γ^1, ..., γ^{L-1}]
         # print(L,t+1+L)
         raw = gammas[:L]          # length L
-        # weights = raw / raw.sum() # normalize to sum=1
-        weights =raw
+        # 
+        if normalization:
+            weights = raw / raw.sum() # normalize to sum=1
+        else:
+            weights =raw
 
         future_rewards = rewards[t+1 : t+1+L]
         # print(weights.shape, future_rewards.shape)
@@ -302,7 +305,7 @@ def preward_opt(ireward,gamma):
     # return np.sum(ireward)
 
 
-def compute_normalized_future_rewards(rewards,T,gamma):
+def compute_normalized_future_rewards(rewards,T,gamma,normalization):
     Y = np.zeros(T, dtype=float)
     gammas  = gamma ** np.arange(T)  # [γ^0, γ^1, …, γ^{T-1}]
 
@@ -314,7 +317,10 @@ def compute_normalized_future_rewards(rewards,T,gamma):
 
         # normalized weights for the next L rewards
         raw     = gammas[:L]            # [γ^0, γ^1, …, γ^{L-1}]
-        weights = raw / raw.sum()
+        if normalization:
+            weights = raw / raw.sum()
+        else:
+            weights = raw
 
         future_rewards = rewards[t+1 : t+1+L]
         # dot-product returns the weighted average
