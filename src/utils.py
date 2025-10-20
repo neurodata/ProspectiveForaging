@@ -230,7 +230,7 @@ def position_encoder(states, type="onehot"):
         Encoded state representation of shape (n_samples, 7).
     """
     n_samples = states.shape[0]
-    state_posencode = np.zeros((n_samples, 7))
+    state_posencode = np.zeros((n_samples, 70))
 
     for i in range(n_samples):
         current_state = int(states[i])
