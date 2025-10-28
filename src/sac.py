@@ -148,7 +148,7 @@ class SACLearner:
         return action
 
     def update(self, batch_size=64):
-        if len(self.replay_buffer) < batch_size:
+        if len(self.replay_buffer) < 200:
             return
 
         state, action, time, reward, next_state = self.replay_buffer.sample(batch_size)

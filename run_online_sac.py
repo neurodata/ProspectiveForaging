@@ -140,5 +140,5 @@ pregret_list_time = []
 for pregret_list, t_list in results_time:
     pregret_list_time.append(pregret_list)
 
-np.savez("results/RL/online_pregrets_sac_seeds.npz", pregret_list_notime=pregret_list_notime, pregret_list_time=pregret_list_time, t_list=t_list)
+np.savez("results/RL/online_pregrets_sac_seeds_2.npz", pregret_list_notime=pregret_list_notime, pregret_list_time=pregret_list_time, t_list=t_list)
 
