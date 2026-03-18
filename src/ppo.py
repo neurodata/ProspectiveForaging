@@ -7,7 +7,6 @@ import numpy as np
 # -------------------------
 # Time-embedding
 # -------------------------
-
 class TimeEmbedding(nn.Module):
     def __init__(self, dim):
         super(TimeEmbedding, self).__init__()
@@ -21,7 +20,7 @@ class TimeEmbedding(nn.Module):
         cos = torch.cos(freqs * t)
 
         return torch.cat([sin, cos], dim=-1)
-
+    
 # -------------------------
 # Rollout Buffer (On-Policy)
 # -------------------------
@@ -80,7 +79,6 @@ class ValueNetwork(nn.Module):
 class PolicyNetwork(nn.Module):
     def __init__(self, state_dim, action_dim, hidden_dim=128, t_dim=50, include_time=False):
         super(PolicyNetwork, self).__init__()
-        # Input dimension depends on whether we use time embeddings
         input_dim = state_dim + t_dim if include_time else state_dim
         
         self.fc1 = nn.Linear(input_dim, hidden_dim)
@@ -92,12 +90,10 @@ class PolicyNetwork(nn.Module):
         self.state_dim = state_dim
 
     def forward(self, state, time):
-        # Convert discrete state to one-hot encoding
         state_one_hot = F.one_hot(state, num_classes=self.state_dim).float()
         
         if self.include_time:
             t_emb = self.time_embed(time)
-            # Ensure dimensions match for concatenation (batch_size, dim)
             x = torch.cat([state_one_hot, t_emb], dim=-1)
         else:
             x = state_one_hot
@@ -161,6 +157,19 @@ class PPOLearner:
                 action = dist.sample()
                 log_prob = log_probs_all[0, action.item()]
                 return action.item(), log_prob.item(), value.item()
+            
+    def run_current_policy(self, env, state, time, horizon):
+        curr_state = state
+        curr_time = time
+        trajectory = [curr_state]
+        rewards = [env._get_current_reward(curr_state, curr_time)]
+        for _ in range(horizon):
+            action = self.select_action(curr_state, curr_time, eval_mode=True)
+            curr_state = env.get_next_state(state=curr_state, action=action)
+            curr_time += 1
+            trajectory.append(curr_state)
+            rewards.append(env._get_current_reward(curr_state, curr_time))
+        return trajectory, rewards
 
     def update(self, next_state, next_time):
         # 1. Prepare data from buffer
@@ -171,8 +180,9 @@ class PPOLearner:
         values = torch.FloatTensor(self.buffer.values)
         rewards = self.buffer.rewards
 
-        # 2. Compute GAE and Returns (The Bootstrapping Part)
+        # 2. Compute GAE and Returns
         with torch.no_grad():
+            # Bootstrap
             next_value = self.critic(torch.LongTensor([next_state]), torch.FloatTensor([next_time])).item()
             
             advantages = []
